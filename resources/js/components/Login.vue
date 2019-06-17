@@ -108,7 +108,7 @@
             },
             submitForm() {
                 this.form.post(this.$attrs.action)
-                    .then(e => {
+                    .then(data => {
                         window.location.href = '/home';
                     })
                     .catch((error) => {
