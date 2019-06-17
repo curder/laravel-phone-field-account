@@ -21,6 +21,7 @@ window.Vue = require('vue');
 
 Vue.component('login', require('./components/Login.vue').default);
 Vue.component('register', require('./components/Register.vue').default);
+Vue.component('find-password', require('./components/FindPassword.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

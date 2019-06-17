@@ -8,7 +8,7 @@
                     <div class="card-header">{{ __('Login') }}</div>
 
                     <div class="card-body">
-                        <Login action="{{ route('login') }}" method="post" reset-password="{{ route('password.request') }}"></Login>
+                        <login action="{{ route('login') }}" method="post" reset-password="{{ route('password.request') }}"></login>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@
                 <div class="card-header">{{ __('Register') }}</div>
 
                 <div class="card-body">
-                    <Register action="{{ route('register') }}"></Register>
+                    <register action="{{ route('register') }}"></register>
                 </div>
             </div>
         </div>

@@ -31,10 +31,17 @@ trait SendsPasswordResetPhones
 
         $token = $this->broker()->createToken($user);
 
-        return redirect(route('password.reset', [
+        $redirect = route('password.reset', [
             'token' => $token,
             'phone' => $request->get('phone'),
-        ]));
+        ]);
+        if($request->wantsJson()) {
+            return response()->json([
+                'redirect' => $redirect,
+            ], 200);
+        }
+
+        return redirect($redirect);
     }
 
     /**
@@ -45,7 +52,10 @@ trait SendsPasswordResetPhones
      */
     protected function validatePhone(Request $request)
     {
-        $request->validate(['phone' => ['required', 'exists:customers']]);
+        $request->validate([
+            'phone' => ['required', 'exists:customers'],
+            'verify_code' => ['required', 'verify_code'],
+        ]);
     }
 
     /**

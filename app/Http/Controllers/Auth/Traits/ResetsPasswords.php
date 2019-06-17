@@ -51,6 +51,9 @@ trait ResetsPasswords
         );
 
         if ($response === Password::PASSWORD_RESET) {
+            if($request->wantsJson()) {
+                return $response;
+            }
             return redirect($this->redirectPath());
         }else if ($response === Password::INVALID_TOKEN) { // token有误
             return redirect()->route('password.request');
