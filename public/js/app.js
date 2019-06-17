@@ -49268,6 +49268,8 @@ module.exports = function(module) {
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+__webpack_require__(/*! ./user-register.js */ "./resources/js/user-register.js");
+
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /**
  * The following block of code may be used to automatically register your
@@ -49416,6 +49418,216 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_template_id_299e239e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/user-register.js":
+/*!***************************************!*\
+  !*** ./resources/js/user-register.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(/*! ./utils/laravel-sms.js */ "./resources/js/utils/laravel-sms.js");
+
+$(function () {
+  var phone_rules = {
+    register: 'register',
+    reset_password: 'reset_password'
+  },
+      token = $('meta[name="csrf-token"]').attr('content'),
+      interval = 60,
+      requestUrl = '/api/sms/send-code',
+      phone_value = function phone_value() {
+    return $("#phone").val();
+  },
+      language = {
+    sending: '短信发送中...',
+    failed: '请求失败，请重试',
+    resendable: '{{seconds}} 秒后再次发送'
+  },
+      notifyCallback = function notifyCallback(msg, type) {
+    if (type === 'sms_sent_success') {
+      console.log(msg, type);
+    } else {
+      console.log(msg, type);
+    }
+  },
+      types = {
+    // 短信验证类型，后台通过这个类型发送不用的模版
+    register: 'register',
+    // 注册
+    reset_password: 'reset_password' // 重置密码
+
+  };
+
+  $.ajaxSetup({
+    beforeSend: function beforeSend(xhr) {
+      xhr.setRequestHeader('Access-Token', phone_value());
+    }
+  }); // 注册发送校验短信
+
+  $("#sendRegisterVerifySmsButton").sms({
+    //laravel csrf token
+    token: token,
+    //请求间隔时间
+    interval: interval,
+    // 请求地址
+    requestUrl: requestUrl,
+    //语音验证码
+    voice: false,
+    //请求参数
+    requestData: {
+      // 手机号
+      phone: phone_value,
+      // 手机号的检测规则，与配置文件中配置保持一致
+      phone_rule: phone_rules.register,
+      // 短信类型
+      type: types.register,
+      request_name: '用户注册',
+      request_url: window.location.href
+    },
+    //消息展示方式(默认为alert)
+    notify: notifyCallback,
+    //语言包
+    language: language
+  }); // 重置密码发送校验短信
+
+  $("#sendResetVerifySmsButton").sms({
+    //laravel csrf token
+    token: token,
+    //请求间隔时间
+    interval: interval,
+    // 请求地址
+    requestUrl: requestUrl,
+    //语音验证码
+    voice: false,
+    //请求参数
+    requestData: {
+      // 手机号
+      phone: phone_value,
+      // 手机号的检测规则，与配置文件中配置保持一致
+      phone_rule: phone_rules.reset_password,
+      // 短信类型
+      type: types.reset_password,
+      request_name: '重置密码',
+      request_url: window.location.href
+    },
+    //消息展示方式(默认为alert)
+    notify: notifyCallback,
+    //语言包
+    language: language
+  });
+});
+
+/***/ }),
+
+/***/ "./resources/js/utils/laravel-sms.js":
+/*!*******************************************!*\
+  !*** ./resources/js/utils/laravel-sms.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+ * send verify sms
+ *---------------------------
+ * top lan <toplan710@gmail.com>
+ * https://github.com/toplan/laravel-sms
+ * --------------------------
+ * Date 2015/06/08
+ */
+(function ($) {
+  $.fn.sms = function (options) {
+    var self = this;
+    var btnOriginContent, timeId;
+    var opts = $.extend(true, {}, $.fn.sms.defaults, options);
+    self.on('click', function (e) {
+      btnOriginContent = self.html() || self.val() || '';
+      changeBtn(opts.language.sending, true);
+      send();
+    });
+
+    function send() {
+      var url = getUrl();
+      var requestData = getRequestData();
+      $.ajax({
+        url: url,
+        type: 'post',
+        data: requestData,
+        success: function success(data) {
+          if (data.success) {
+            timer(opts.interval);
+          } else {
+            changeBtn(btnOriginContent, false);
+            opts.notify.call(null, data.message, data.type);
+          }
+        },
+        error: function error(xhr, type) {
+          changeBtn(btnOriginContent, false);
+          opts.notify.call(null, opts.language.failed, 'request_failed');
+        }
+      });
+    }
+
+    function getUrl() {
+      return opts.requestUrl || '/laravel-sms/' + (opts.voice ? 'voice-verify' : 'verify-code');
+    }
+
+    function getRequestData() {
+      var requestData = {
+        _token: opts.token || ''
+      };
+      var data = $.isPlainObject(opts.requestData) ? opts.requestData : {};
+      $.each(data, function (key) {
+        if (typeof data[key] === 'function') {
+          requestData[key] = data[key].call(requestData);
+        } else {
+          requestData[key] = data[key];
+        }
+      });
+      return requestData;
+    }
+
+    function timer(seconds) {
+      var btnText = opts.language.resendable;
+      btnText = typeof btnText === 'string' ? btnText : '';
+
+      if (seconds < 0) {
+        clearTimeout(timeId);
+        changeBtn(btnOriginContent, false);
+      } else {
+        timeId = setTimeout(function () {
+          clearTimeout(timeId);
+          changeBtn(btnText.replace('{{seconds}}', seconds-- + ''), true);
+          timer(seconds);
+        }, 1000);
+      }
+    }
+
+    function changeBtn(content, disabled) {
+      self.html(content);
+      self.val(content);
+      self.prop('disabled', !!disabled);
+    }
+  };
+
+  $.fn.sms.defaults = {
+    token: null,
+    interval: 60,
+    voice: false,
+    requestUrl: null,
+    requestData: null,
+    notify: function notify(msg, type) {
+      alert(msg);
+    },
+    language: {
+      sending: '短信发送中...',
+      failed: '请求失败，请重试',
+      resendable: '{{seconds}} 秒后再次发送'
+    }
+  };
+})(window.jQuery || window.Zepto);
 
 /***/ }),
 

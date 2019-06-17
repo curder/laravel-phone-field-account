@@ -5,7 +5,7 @@
  */
 
 require('./bootstrap');
-
+require('./user-register.js');
 window.Vue = require('vue');
 
 /**

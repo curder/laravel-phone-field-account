@@ -54,6 +54,27 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <label for="verify_code"
+                                   class="col-md-4 col-form-label text-md-right">{{ __('Verify Code') }}</label>
+
+                            <div class="col-md-6">
+                                <div style="display: flex;" class="input-group">
+                                    <input id="verify_code" type="text"
+                                           class="form-control w-50 @error('verify_code') is-invalid @enderror"
+                                           name="verify_code"
+                                           value="{{ old('verify_code') }}"
+                                           required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="sendRegisterVerifySmsButton">点击获取验证码</button>
+                                    </div>
+                                </div>
+                                @error('verify_code')
+                                <p class="invalid-feedback" role="alert"><strong>{{ __($message) }}</strong></p>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">

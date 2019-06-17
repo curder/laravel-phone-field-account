@@ -13,11 +13,11 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 // Registration Routes...
 Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
-Route::post('register', 'Auth\RegisterController@register')->name('register.handle');
+Route::post('register', 'Auth\RegisterController@register')->middleware(['sms_access_token'])->name('register.handle');
 
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-Route::post('password/phone', 'Auth\ForgotPasswordController@sendResetLinkPhone')->name('password.phone');
+Route::post('password/phone', 'Auth\ForgotPasswordController@sendResetLinkPhone')->middleware(['sms_access_token'])->name('password.phone');
 Route::get('password/reset/{token}/{phone?}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
 
