@@ -8,10 +8,9 @@
                 <input id="phone"
                        type="text"
                        class="form-control"
-                       name="phone"
                        v-model="form.phone"
                        :class="{'is-invalid' : form.errors.has('phone')}"
-                       autofocus>
+                       name="phone">
                 <span class="invalid-feedback" role="alert" v-if="form.errors.has('phone')">
                     <strong v-text="form.errors.first('phone')"></strong>
                 </span>
@@ -26,99 +25,78 @@
                 <input id="password"
                        type="password"
                        class="form-control"
-                       name="password"
                        v-model="form.password"
-                       :class="{'is-invalid' : form.errors.has('password')}">
-
+                       :class="{'is-invalid' : form.errors.has('password')}"
+                       name="password">
                 <span class="invalid-feedback" role="alert" v-if="form.errors.has('password')">
                     <strong v-text="form.errors.first('password')"></strong>
                 </span>
-
             </div>
         </div>
+
+        <div class="form-group row">
+            <label for="password-confirm"
+                   class="col-md-4 col-form-label text-md-right">Confirm Password</label>
+
+            <div class="col-md-6">
+                <input id="password-confirm"
+                       type="password"
+                       class="form-control"
+                       v-model="form.password_confirmation"
+                       name="password_confirmation">
+            </div>
+        </div>
+
         <div class="form-group row">
             <label for="verify_code"
                    class="col-md-4 col-form-label text-md-right">Verify Code</label>
 
             <div class="col-md-6">
-                <div style="display: flex;">
-                    <input id="verify_code"
-                           type="text"
-                           name="verify_code"
+                <div style="display: flex;" class="input-group">
+                    <input id="verify_code" type="text"
+                           class="form-control w-50"
+                           :class="{'is-invalid' : form.errors.has('password')}"
                            v-model="form.verify_code"
-                           :class="{'is-invalid' : form.errors.has('verify_code')}"
-                           class="form-control w-50">
-                    <Captcha src="/captcha/api/login" ref="captcha" @captcha-updated="captchaUpdated"></Captcha>
+                           name="verify_code">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="sendRegisterVerifySmsButton">点击获取验证码</button>
+                    </div>
                 </div>
-                <span class="invalid-feedback" role="alert" v-if="form.errors.has('verify_code')">
+
+                <span class="invalid-feedback d-block" role="alert" v-if="form.errors.has('verify_code')">
                     <strong v-text="form.errors.first('verify_code')"></strong>
                 </span>
             </div>
         </div>
 
-        <div class="form-group row">
-            <div class="col-md-6 offset-md-4">
-                <div class="form-check">
-                    <input class="form-check-input" v-model="form.remember" type="checkbox" name="remember" id="remember">
-
-                    <label class="form-check-label" for="remember">Remember Me</label>
-                </div>
-            </div>
-        </div>
-
-
         <div class="form-group row mb-0">
-            <div class="col-md-8 offset-md-4">
+            <div class="col-md-6 offset-md-4">
                 <button type="submit" class="btn btn-primary">
-                    Login
+                    Register
                 </button>
-
-
-                <a class="btn btn-link" :href="resetPassword">
-                    Forgot Your Password?
-                </a>
-
             </div>
         </div>
     </form>
 </template>
 <script>
-    import Captcha from './Captcha.vue';
     import Form from 'form-backend-validation';
+
     export default {
-        props: ['reset-password'],
-        components: {
-            Captcha,
-        },
         data() {
             return {
                 form: new Form({
-                    type: 'ajax',
                     phone: '',
                     password: '',
-                    remember: false,
+                    password_confirmation: '',
                     verify_code: '',
-                    verify_code_key: '',
-                })
+                }),
             }
         },
         methods: {
-            captchaUpdated(image) {
-                this.form.verify_code_key = image.key;
-            },
             submitForm() {
-                this.form.post(this.$attrs.action)
-                    .then(e => {
-                        window.location.href = '/home';
-                    })
-                    .catch((error) => {
-                        this.refreshCaptcha();
-                    });
-            },
-            refreshCaptcha() {
-                if(this.form.errors.has('verify_code')) {
-                    this.$refs.captcha.fetchData();
-                }
+                this.form.post(this.$attrs.action).then((data) => {
+                    window.location.href = '/home';
+                }).catch((data) => {console.log(data)});
             }
         }
     }
