@@ -70,7 +70,7 @@
                                     </div>
                                 </div>
                                 @error('verify_code')
-                                <p class="invalid-feedback" role="alert"><strong>{{ __($message) }}</strong></p>
+                                <span class="invalid-feedback" role="alert"><strong>{{ __($message) }}</strong></span>
                                 @enderror
                             </div>
                         </div>
