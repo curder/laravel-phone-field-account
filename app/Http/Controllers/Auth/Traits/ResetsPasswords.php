@@ -55,7 +55,7 @@ trait ResetsPasswords
         }else if ($response === Password::INVALID_TOKEN) { // token有误
             return redirect()->route('password.request');
         }else if($response === Password::INVALID_PASSWORD) { // 密码有误
-dd($response);
+
         }
     }
 
