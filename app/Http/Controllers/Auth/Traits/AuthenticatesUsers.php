@@ -122,7 +122,9 @@ trait AuthenticatesUsers
      */
     protected function authenticated(Request $request, $user)
     {
-        //
+        if($request->wantsJson()) {
+            return $user;
+        }
     }
 
     /**
